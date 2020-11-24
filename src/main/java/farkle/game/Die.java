@@ -61,5 +61,16 @@ public class Die
 	{
 		return selected;
 	}
+	
+	public Die copy()
+	{
+		Die copy = new Die();
+		copy.value = this.value;
+		copy.selected = this.selected;
+		copy.locked = this.locked;
+		return copy;
+				
+	}
+
 
 }

@@ -88,5 +88,28 @@ public class DiceHand
 			lockedInfo[i] = dice[i].isLocked();
 		return lockedInfo;
 	}
+	
+	public boolean isSelectedCombination()
+	{
+		return Rules.hasAnyCombination(getValues());
+	}
+	
+	public int getSelectedScore()
+	{
+		return Rules.getScore(getValues());
+	}
+	
+	public boolean hasSelectedOnlyCombinations()
+	{
+		return Rules.hasOnlyCombinations(getValues());
+	}
+	
+	public DiceHand copy()
+	{
+		DiceHand copy = new DiceHand();
+		for (int i = 0; i < 6; i++)
+			copy.dice[i] = this.dice[i].copy();
+		return copy;
+	}
 
 }

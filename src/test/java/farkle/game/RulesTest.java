@@ -2,7 +2,7 @@ package farkle.game;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.lang.reflect.Array;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -86,92 +86,192 @@ class RulesTest {
 		//ones
 		values = new int[] {6,2,6,1,1,1};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(1000, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {3,6,5,4,6,1};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(150, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {1,2,6,1,4,4};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(200, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {4,2,6,1};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(100, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {2,3,2,4,1};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(100, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {1};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(100, Rules.getScore(values));
+		assertEquals(true, Rules.hasOnlyCombinations(values));
 		
 		//fives
 		values = new int[] {5,4,2,3,6,6};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(50, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {3,2,6,6,4,5};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(50, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {2,5,1};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(150, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {5};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(50, Rules.getScore(values));
+		assertEquals(true, Rules.hasOnlyCombinations(values));
 		
 		//twos
 		values = new int[] {2,4,5,2,2,4};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(250, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
+		values = new int[] {2,4,3,2,2,4};
+		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(200, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {2,3,2,6,2,2};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(400, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {2,2,2,6,2,2};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(600, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {2,2,2,2,2,2};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(800, Rules.getScore(values));
+		assertEquals(true, Rules.hasOnlyCombinations(values));
 		values = new int[] {2,2,2};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(200, Rules.getScore(values));
+		assertEquals(true, Rules.hasOnlyCombinations(values));
 		values = new int[] {2,3,2,3,4};
 		assertEquals(false, Rules.hasAnyCombination(values));
+		assertEquals(0, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {2,2};
 		assertEquals(false, Rules.hasAnyCombination(values));
+		assertEquals(0, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		
 		//threes
 		values = new int[] {4,3,3,4,3};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(300, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {4,3,3,4,3,3};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(600, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {3,3,3};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(300, Rules.getScore(values));
+		assertEquals(true, Rules.hasOnlyCombinations(values));
+		values = new int[] {3,3,3,6,3,3};
+		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(900, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
+		values = new int[] {3,3,3,3,3,3,};
+		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(1200, Rules.getScore(values));
+		assertEquals(true, Rules.hasOnlyCombinations(values));
 		values = new int[] {3,3};
 		assertEquals(false, Rules.hasAnyCombination(values));
+		assertEquals(0, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {4,3,6,4,3};
 		assertEquals(false, Rules.hasAnyCombination(values));
+		assertEquals(0, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		
 		//fours
 		values = new int[] {4,2,4,6,4,2};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(400, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {4,4,4,2,4,4};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(1200, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {4,4,4};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(400, Rules.getScore(values));
+		assertEquals(true, Rules.hasOnlyCombinations(values));
+		values = new int[] {4,4,4,3,4,6};
+		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(800, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
+		values = new int[] {4,4,4,4,4,4};
+		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(1600, Rules.getScore(values));
+		assertEquals(true, Rules.hasOnlyCombinations(values));
 		values = new int[] {4,4};
 		assertEquals(false, Rules.hasAnyCombination(values));
+		assertEquals(0, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {4,2,4,6,6,2};
 		assertEquals(false, Rules.hasAnyCombination(values));
+		assertEquals(0, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		
 		//sixes
 		values = new int[] {6,4,5,6,6,4};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(650, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
+		values = new int[] {6,4,2,6,6,4};
+		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(600, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {6,3,6,6,6,6};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(1800, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {6,6,6,6,6,6};
 		assertEquals(true, Rules.hasAnyCombination(values));
-		values = new int[] {6,6,6,6,6,6};
+		assertEquals(2400, Rules.getScore(values));
+		assertEquals(true, Rules.hasOnlyCombinations(values));
+		values = new int[] {6,6,4,6,6,3};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(1200, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {6,6,6};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(600, Rules.getScore(values));
+		assertEquals(true, Rules.hasOnlyCombinations(values));
 		values = new int[] {6,3,6,3,4};
 		assertEquals(false, Rules.hasAnyCombination(values));
+		assertEquals(0, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {6,6};
 		assertEquals(false, Rules.hasAnyCombination(values));
+		assertEquals(0, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		
 		//misc
 		values = new int[] {2,2,3,3,4,4};
 		assertEquals(false, Rules.hasAnyCombination(values));
+		assertEquals(0, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {2,3,4,6};
 		assertEquals(false, Rules.hasAnyCombination(values));
+		assertEquals(0, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {1,2,3,4,5,6};
 		assertEquals(true, Rules.hasAnyCombination(values));
+		assertEquals(150, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		values = new int[] {};
 		assertEquals(false, Rules.hasAnyCombination(values));
+		assertEquals(0, Rules.getScore(values));
+		assertEquals(false, Rules.hasOnlyCombinations(values));
 		
 		
 		

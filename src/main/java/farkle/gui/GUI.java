@@ -7,6 +7,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import farkle.main.Main;
+import farkle.main.UserAction;
+
 public class GUI extends JFrame implements ActionListener
 {
 	/**
@@ -20,9 +23,13 @@ public class GUI extends JFrame implements ActionListener
 	private MainMenu mainMenu = new MainMenu(this);
 	private GameScreen gameScreen = new GameScreen(this);
 	
-	public GUI()
+	private Main main;
+	
+	public GUI(Main main)
 	{
 		super();
+		this.main = main;
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		//getContentPane().add(mainMenu);
@@ -45,11 +52,11 @@ public class GUI extends JFrame implements ActionListener
 			dialog.setVisible(true);
 			break;
 		case MainMenu.QUIT:
-			System.exit(0);
+			main.dispatchUserAction(new UserAction(UserAction.Type.QUIT));
 			break;
 			
 		case GameScreen.LEAVE:
-			changeScreenTo(mainMenu);
+			main.dispatchUserAction(new UserAction(UserAction.Type.LEAVE_GAME));
 			break;
 		}
 		
@@ -59,6 +66,11 @@ public class GUI extends JFrame implements ActionListener
 	{
 		remove(current);
 	}*/
+	
+	public void mainMenu()
+	{
+		changeScreenTo(mainMenu);
+	}
 	
 	private void changeScreenTo(JPanel newScreen)
 	{
