@@ -7,6 +7,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import farkle.game.GameState;
 import farkle.main.Main;
 import farkle.main.UserAction;
 
@@ -87,6 +88,10 @@ public class GUI extends JFrame implements ActionListener
 			System.out.println(name);
 		}
 		changeScreenTo(gameScreen);
+		
+		GameState state = new GameState(names);
+		gameScreen.setGameState(state);
+		
 	}
 	
 	

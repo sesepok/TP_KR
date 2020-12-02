@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -12,10 +13,13 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import farkle.game.GameState;
 
 class GameScreen extends JPanel
 {
@@ -43,6 +47,67 @@ class GameScreen extends JPanel
 	private JLabel selectedInfoLabel = new JLabel("SELECTED INFO LABEL");
 	private JLabel generalInfoLabel = new JLabel("GENERAL INFO LABEL");
 	
+	private ImageIcon noneDieIcon = new ImageIcon(getClass().getResource("/none.png"));
+	private ImageIcon oneDieIcon = new ImageIcon(getClass().getResource("/one.png"));
+	private ImageIcon twoDieIcon = new ImageIcon(getClass().getResource("/two.png"));
+	private ImageIcon threeDieIcon = new ImageIcon(getClass().getResource("/three.png"));
+	private ImageIcon fourDieIcon = new ImageIcon(getClass().getResource("/four.png"));
+	private ImageIcon fiveDieIcon = new ImageIcon(getClass().getResource("/five.png"));
+	private ImageIcon sixDieIcon = new ImageIcon(getClass().getResource("/six.png"));
+	
+	
+	private JButton[] diceButtons = new JButton[6];
+	
+	private class PlayerRecord extends JPanel
+	{
+		public JLabel nameLabel;
+		public JLabel bankLabel;
+		public JLabel scoreLabel;
+		
+		public PlayerRecord(String name)
+		{
+			setBorder(new EmptyBorder(5, 10, 15, 0));
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			setOpaque(false);
+			nameLabel = new JLabel(name);
+			nameLabel.setFont(nameLabel.getFont().deriveFont(20f));
+			add(nameLabel);
+			bankLabel = new JLabel();
+			bankLabel.setFont(nameLabel.getFont().deriveFont(20f));
+			add(bankLabel);
+			scoreLabel = new JLabel();
+			scoreLabel.setFont(nameLabel.getFont().deriveFont(20f));
+			add(scoreLabel);
+			
+			setBank(0); setScore(0);
+		}
+		
+		public void setBank(int n)
+		{
+			bankLabel.setText("Bank: " + n);
+		}
+		public void setScore(int n)
+		{
+			scoreLabel.setText("Score: " + n);
+		}
+		
+		public void select()
+		{
+			nameLabel.setForeground(Color.yellow);
+			bankLabel.setForeground(Color.yellow);
+			scoreLabel.setForeground(Color.yellow);
+		}
+		
+		public void deselect()
+		{
+			nameLabel.setForeground(Color.black);
+			bankLabel.setForeground(Color.black);
+			scoreLabel.setForeground(Color.black);
+		}
+	}
+	
+	private PlayerRecord[] playerRecords;
+	
 	public GameScreen(GUI parent)
 	{
 		super();
@@ -56,31 +121,35 @@ class GameScreen extends JPanel
 		bottomPanel.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Color.gray));
 		bottomPanel.setPreferredSize(new Dimension(1, 100));
 		add(bottomPanel, BorderLayout.SOUTH);
-		//bottomPanel.add(testLabel);
 		
-		leftPanel.setBackground(Color.green);
+		//leftPanel.setBackground(Color.green);
+		leftPanel.setBackground(new Color(127, 127, 97));
 		leftPanel.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Color.gray));
 		leftPanel.setPreferredSize(new Dimension(350, 1));
+		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
 		add(leftPanel, BorderLayout.WEST);
 		
-		mainPanel.setBackground(Color.blue);
+		mainPanel.setBackground(new Color(0, 100, 0));
 		add(mainPanel);
 		
 		bottomPanel.setLayout(new BorderLayout());
+		bottomPanel.setBackground(new Color(101, 67, 33));
 		leaveButton.setMaximumSize(new Dimension(300, 50));
 		leaveButton.setMinimumSize(new Dimension(300, 50));
 		leaveButton.setPreferredSize(new Dimension(300, 50));
 		leaveButton.setName(LEAVE);
 		leaveButton.addActionListener(parent);
-		//bottomPanel.add(Box.createHorizontalStrut(25));
-		leaveButtonPanel.setBackground(Color.cyan);
+		//leaveButtonPanel.setBackground(Color.cyan);
 		leaveButtonPanel.setPreferredSize(new Dimension(350, 1));
 		leaveButtonPanel.setLayout(new GridBagLayout());
+		leaveButtonPanel.setOpaque(false);
 		bottomPanel.add(leaveButtonPanel, BorderLayout.WEST);
 		leaveButtonPanel.add(leaveButton);
 		bottomPanel.add(generalInfoPanel);
 		generalInfoPanel.setLayout(new GridBagLayout());
+		generalInfoLabel.setForeground(Color.yellow);;
 		generalInfoPanel.add(generalInfoLabel);
+		generalInfoPanel.setOpaque(false);
 		
 		mainPanel.setLayout(new GridLayout(5, 1));
 		JPanel dummy1 = new JPanel();
@@ -89,20 +158,27 @@ class GameScreen extends JPanel
 		JPanel dummy2 = new JPanel();
 		dummy2.setOpaque(false);
 		mainPanel.add(dummy2);
-		dicePanel.setBackground(Color.cyan);
+		//dicePanel.setBackground(Color.cyan);
+		dicePanel.setOpaque(false);
 		mainPanel.add(dicePanel);
-		selectedInfoPanel.setBackground(Color.orange);
+		//selectedInfoPanel.setBackground(Color.orange);
+		selectedInfoPanel.setOpaque(false);
 		mainPanel.add(selectedInfoPanel);
-		playerActionsPanel.setBackground(Color.yellow);
+		//playerActionsPanel.setBackground(Color.yellow);
+		playerActionsPanel.setOpaque(false);
 		mainPanel.add(playerActionsPanel);
 		
 		playerActionsPanel.setLayout(new GridLayout(1, 2));
-		rollButtonPanel.setBackground(Color.pink);
+		//rollButtonPanel.setBackground(Color.pink);
+		rollButtonPanel.setOpaque(false);
 		playerActionsPanel.add(rollButtonPanel);
-		bankButtonPanel.setBackground(Color.magenta);
+		//bankButtonPanel.setBackground(Color.magenta);
+		bankButtonPanel.setOpaque(false);
 		playerActionsPanel.add(bankButtonPanel);
 		
 		selectedInfoPanel.setLayout(new GridBagLayout());
+		selectedInfoLabel.setFont(selectedInfoLabel.getFont().deriveFont(15f));
+		selectedInfoLabel.setForeground(Color.yellow);
 		selectedInfoPanel.add(selectedInfoLabel);
 		
 		rollButtonPanel.setLayout(new GridBagLayout());
@@ -112,6 +188,49 @@ class GameScreen extends JPanel
 		bankButton.setPreferredSize(new Dimension(300, 100));
 		bankButtonPanel.add(bankButton);
 		
+		//================= BUTTONS FOR DICE ===================================
+		
+		initDiceButtons();
+		
+		dicePanel.setLayout(new GridLayout());
+		for (int i = 0; i < 6; i++)
+			dicePanel.add(diceButtons[i]);
+	}
+	
+	private void initDiceButtons()
+	{
+		for (int i = 0; i < 6; i++)
+		{
+			diceButtons[i] = new JButton(noneDieIcon);
+			diceButtons[i].setBorderPainted(false);
+			diceButtons[i].setFocusPainted(false);
+			diceButtons[i].setContentAreaFilled(false);
+			diceButtons[i].setName("die " + i);
+			
+			diceButtons[i].addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					System.out.println("pressed!" + ((JButton)arg0.getSource()).getName().charAt(4));
+				}
+			});
+		}
+	}
+	
+	
+	
+	public void setGameState(GameState state)
+	{
+		leftPanel.removeAll();
+		
+		playerRecords = new PlayerRecord[state.players.length];
+		for (int i = 0; i < playerRecords.length; i++)
+		{
+			playerRecords[i] = new PlayerRecord(state.players[i].getName());
+			leftPanel.add(playerRecords[i]);
+		}
+		playerRecords[state.currentPlayer].select();
+		revalidate();
 	}
 
 }

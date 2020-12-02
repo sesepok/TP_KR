@@ -4,7 +4,7 @@ public class Game
 {
 	private Player[] players;
 	private DiceHand hand;
-	private Player currentPlayer;
+	private int currentPlayer;
 	
 	public Game(String[] names)
 	{
@@ -13,7 +13,7 @@ public class Game
 			players[i] = new Player(names[i]);
 		
 		hand = new DiceHand();
-		currentPlayer = players[0];
+		currentPlayer = 0;
 	}
 	
 	public GameState getGameState()
@@ -38,7 +38,7 @@ public class Game
 	
 	public boolean isBankEnabled()
 	{
-		return currentPlayer.getScore() >= 300;
+		return players[currentPlayer].getScore() >= 300;
 	}
 	
 	
