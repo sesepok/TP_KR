@@ -144,7 +144,7 @@ class PlayerListDialog extends JDialog implements ActionListener
 		}
 		else if (e.getSource() == okButton)
 		{
-			parent.createLocalGame(getNames());
+			parent.inputPlayerNames(getNames());
 			dispose();
 		}
 	}

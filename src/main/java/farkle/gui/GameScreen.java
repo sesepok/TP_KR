@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.NoSuchObjectException;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -19,13 +20,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import farkle.game.Die;
 import farkle.game.GameState;
 
-class GameScreen extends JPanel
+class GameScreen extends JPanel implements ActionListener
 {
 	private static final long serialVersionUID = 1L;
 	
 	public static final String LEAVE = "LEAVE";
+	public static final String ROLL = "ROLL";
+	public static final String BANK = "BANK";
 	
 	private GUI parent;
 	
@@ -54,6 +58,20 @@ class GameScreen extends JPanel
 	private ImageIcon fourDieIcon = new ImageIcon(getClass().getResource("/four.png"));
 	private ImageIcon fiveDieIcon = new ImageIcon(getClass().getResource("/five.png"));
 	private ImageIcon sixDieIcon = new ImageIcon(getClass().getResource("/six.png"));
+	
+	private ImageIcon oneDieIconSelected = new ImageIcon(getClass().getResource("/oneSelected.png"));
+	private ImageIcon twoDieIconSelected = new ImageIcon(getClass().getResource("/twoSelected.png"));
+	private ImageIcon threeDieIconSelected = new ImageIcon(getClass().getResource("/threeSelected.png"));
+	private ImageIcon fourDieIconSelected = new ImageIcon(getClass().getResource("/fourSelected.png"));
+	private ImageIcon fiveDieIconSelected = new ImageIcon(getClass().getResource("/fiveSelected.png"));
+	private ImageIcon sixDieIconSelected = new ImageIcon(getClass().getResource("/sixSelected.png"));
+	
+	private ImageIcon oneDieIconLocked = new ImageIcon(getClass().getResource("/oneLocked.png"));
+	private ImageIcon twoDieIconLocked = new ImageIcon(getClass().getResource("/twoLocked.png"));
+	private ImageIcon threeDieIconLocked = new ImageIcon(getClass().getResource("/threeLocked.png"));
+	private ImageIcon fourDieIconLocked = new ImageIcon(getClass().getResource("/fourLocked.png"));
+	private ImageIcon fiveDieIconLocked = new ImageIcon(getClass().getResource("/fiveLocked.png"));
+	private ImageIcon sixDieIconLocked = new ImageIcon(getClass().getResource("/sixLocked.png"));
 	
 	
 	private JButton[] diceButtons = new JButton[6];
@@ -183,12 +201,16 @@ class GameScreen extends JPanel
 		
 		rollButtonPanel.setLayout(new GridBagLayout());
 		rollButton.setPreferredSize(new Dimension(300, 100));
+		rollButton.setName(ROLL);
+		rollButton.addActionListener(parent);
 		rollButtonPanel.add(rollButton);
 		bankButtonPanel.setLayout(new GridBagLayout());
 		bankButton.setPreferredSize(new Dimension(300, 100));
+		bankButton.setName(BANK);
+		bankButton.addActionListener(parent);
 		bankButtonPanel.add(bankButton);
 		
-		//================= BUTTONS FOR DICE ===================================
+		
 		
 		initDiceButtons();
 		
@@ -207,17 +229,60 @@ class GameScreen extends JPanel
 			diceButtons[i].setContentAreaFilled(false);
 			diceButtons[i].setName("die " + i);
 			
-			diceButtons[i].addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					System.out.println("pressed!" + ((JButton)arg0.getSource()).getName().charAt(4));
-				}
-			});
+			diceButtons[i].addActionListener(this);
 		}
 	}
 	
+	@Override
+	public void actionPerformed(ActionEvent e) 
+	{
+		System.out.println("pressed!" + ((JButton)e.getSource()).getName().charAt(4));
+		parent.diePressed(Integer.parseInt(((JButton)e.getSource()).getName().substring(4)));
+	}
 	
+	
+	
+	private ImageIcon dieToIcon(Die die)
+	{
+		if (die.isSelected())
+		{
+			switch (die.getValue())
+			{
+			case 1: return oneDieIconSelected;
+			case 2: return twoDieIconSelected;
+			case 3: return threeDieIconSelected;
+			case 4: return fourDieIconSelected;
+			case 5: return fiveDieIconSelected;
+			case 6: return sixDieIconSelected;
+			}
+		}
+		else if (die.isLocked())
+		{
+			switch (die.getValue())
+			{
+			case 1: return oneDieIconLocked;
+			case 2: return twoDieIconLocked;
+			case 3: return threeDieIconLocked;
+			case 4: return fourDieIconLocked;
+			case 5: return fiveDieIconLocked;
+			case 6: return sixDieIconLocked;
+			}
+		}
+		else
+		{
+			switch (die.getValue())
+			{
+			case 1: return oneDieIcon;
+			case 2: return twoDieIcon;
+			case 3: return threeDieIcon;
+			case 4: return fourDieIcon;
+			case 5: return fiveDieIcon;
+			case 6: return sixDieIcon;
+			default: return noneDieIcon;
+			}
+		}
+		return noneDieIcon;
+	}
 	
 	public void setGameState(GameState state)
 	{
@@ -230,6 +295,22 @@ class GameScreen extends JPanel
 			leftPanel.add(playerRecords[i]);
 		}
 		playerRecords[state.currentPlayer].select();
+		
+		for (int i = 0; i < 6; i++)
+		{
+			diceButtons[i].setIcon(dieToIcon(state.hand.getDie(i)));
+		}
+		
+		rollButton.setEnabled(state.rollEnabled);
+		bankButton.setEnabled(state.bankEnabled);
+		
+		/*diceButtons[0].setIcon(oneDieIcon);
+		diceButtons[1].setIcon(twoDieIcon);
+		diceButtons[2].setIcon(threeDieIcon);
+		diceButtons[3].setIcon(fourDieIcon);
+		diceButtons[4].setIcon(fiveDieIcon);
+		diceButtons[5].setIcon(sixDieIcon);*/
+		
 		revalidate();
 	}
 

@@ -6,6 +6,8 @@ public class Game
 	private DiceHand hand;
 	private int currentPlayer;
 	
+	private boolean blankHand = true;
+	
 	public Game(String[] names)
 	{
 		players = new Player[names.length];
@@ -14,6 +16,7 @@ public class Game
 		
 		hand = new DiceHand();
 		currentPlayer = 0;
+		System.out.println(isRollEnabled());
 	}
 	
 	public GameState getGameState()
@@ -27,13 +30,45 @@ public class Game
 		result.currentPlayer = this.currentPlayer;
 		
 		result.rollEnabled = isRollEnabled();
+		System.out.println("getGameState: " + isRollEnabled());
 		result.bankEnabled = isBankEnabled();
 		return result;
 	}
 	
+	public void resetHand()
+	{
+		hand.reset();
+		blankHand = true;
+	}
+	
+	public void roll()
+	{
+		assert isRollEnabled();
+		
+		
+		
+		hand.roll();
+		blankHand = false;
+	}
+	
+	public void select(int n)
+	{
+		assert n >= 0 && n < 6;
+		
+		hand.select(n);
+	}
+	
+	public void deselect(int n)
+	{
+		assert n >= 0 && n < 6;
+		
+		hand.deselect(n);
+	}
+	
+	
 	public boolean isRollEnabled()
 	{
-		return hand.hasSelectedOnlyCombinations();
+		return blankHand || hand.hasSelectedOnlyCombinations();
 	}
 	
 	public boolean isBankEnabled()

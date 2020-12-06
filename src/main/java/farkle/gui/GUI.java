@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 
 import farkle.game.GameState;
 import farkle.main.Main;
-import farkle.main.UserAction;
+import farkle.main.userAction.*;
 
 public class GUI extends JFrame implements ActionListener
 {
@@ -53,12 +53,19 @@ public class GUI extends JFrame implements ActionListener
 			dialog.setVisible(true);
 			break;
 		case MainMenu.QUIT:
-			main.dispatchUserAction(new UserAction(UserAction.Type.QUIT));
+			main.dispatchUserAction(new QuitUserAction());
 			break;
 			
 		case GameScreen.LEAVE:
-			main.dispatchUserAction(new UserAction(UserAction.Type.LEAVE_GAME));
+			main.dispatchUserAction(new LeaveUserAction());
 			break;
+			
+		case GameScreen.ROLL:
+			main.dispatchUserAction(new RollUserAction());
+			break;
+			
+		case GameScreen.BANK:
+			main.dispatchUserAction(new BankUserAction());
 		}
 		
 	}
@@ -80,18 +87,34 @@ public class GUI extends JFrame implements ActionListener
 		revalidate();
 	}
 	
-	//PROTOTYPE
-	public void createLocalGame(String[] names)
+	//================ Interface for children =========================================
+	
+	public void inputPlayerNames(String[] names)
 	{
-		for (String name : names)
-		{
-			System.out.println(name);
-		}
+		main.dispatchUserAction(new CreateLocalGameUserAction(names));
+	}
+	
+	public void diePressed(int n)
+	{
+		main.dispatchUserAction(new DieUserAction(n));
+	}
+	
+	//=================== Interface for main ==================================
+	
+	//PROTOTYPE
+	public void createLocalGameScreen(String[] names)
+	{
+		
 		changeScreenTo(gameScreen);
 		
 		GameState state = new GameState(names);
 		gameScreen.setGameState(state);
 		
+	}
+	
+	public void setGameState(GameState state)
+	{
+		gameScreen.setGameState(state);
 	}
 	
 	

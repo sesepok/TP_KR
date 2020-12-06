@@ -11,8 +11,6 @@ public class DiceHand
 		{
 			dice[i] = new Die();
 		}
-		
-		
 	}
 	
 	public void reset()
@@ -26,13 +24,23 @@ public class DiceHand
 	public void roll()
 	{
 		for (Die die: dice)
-			die.roll();
+			if (!die.isLocked()) die.roll();
 	}
 	
 	public void roll(int[] diceNums)
 	{
 		for (int number : diceNums)
 			dice[number].roll();
+	}
+	
+	public Die getDie(int n)
+	{
+		return dice[n].copy();
+	}
+	
+	public int getValue(int n)
+	{
+		return dice[n].getValue();
 	}
 	
 	public int[] getValues()
@@ -99,9 +107,29 @@ public class DiceHand
 		return Rules.getScore(getValues());
 	}
 	
+	public int[] getSelected()
+	{	
+		int size = 0;
+		for (Die die: dice)
+			if (die.isSelected()) size++;
+		int[] result = new int[size];
+		int index = 0;
+		for (Die die: dice)
+			if (die.isSelected()) result[index++] = die.getValue();
+		return result;
+	}
+	
 	public boolean hasSelectedOnlyCombinations()
 	{
-		return Rules.hasOnlyCombinations(getValues());
+		return Rules.hasOnlyCombinations(getSelected());
+	}
+	
+	public void lockSelected()
+	{
+		for (Die die: dice)
+		{
+			if (die.isSelected()) die.lock();
+		}
 	}
 	
 	public DiceHand copy()

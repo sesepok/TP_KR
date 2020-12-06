@@ -1,4 +1,4 @@
-package farkle.main;
+package farkle.main.userAction;
 
 public class UserAction 
 {
@@ -14,12 +14,12 @@ public class UserAction
 		QUIT
 	}
 	
-	public Type type;
+	public final Type type;
 	
-	public UserAction(Type type)
+	protected UserAction(Type type)
 	{
 		this.type = type;
 	}
-	
-
 }
+
+
