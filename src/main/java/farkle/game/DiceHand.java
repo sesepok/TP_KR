@@ -76,6 +76,7 @@ public class DiceHand
 	
 	public void lock(int n)
 	{
+		dice[n].deselect();
 		dice[n].lock();
 	}
 	
@@ -104,10 +105,10 @@ public class DiceHand
 	
 	public int getSelectedScore()
 	{
-		return Rules.getScore(getValues());
+		return Rules.getScore(getSelectedValues());
 	}
 	
-	public int[] getSelected()
+	public int[] getSelectedValues()
 	{	
 		int size = 0;
 		for (Die die: dice)
@@ -119,9 +120,21 @@ public class DiceHand
 		return result;
 	}
 	
+	public int[] getUnlockedValues()
+	{
+		int size = 0;
+		for (Die die: dice)
+			if (!die.isLocked()) size++;
+		int[] result = new int[size];
+		int index = 0;
+		for (Die die: dice)
+			if (!die.isLocked()) result[index++] = die.getValue();
+		return result;
+	}
+	
 	public boolean hasSelectedOnlyCombinations()
 	{
-		return Rules.hasOnlyCombinations(getSelected());
+		return Rules.hasOnlyCombinations(getSelectedValues());
 	}
 	
 	public void lockSelected()

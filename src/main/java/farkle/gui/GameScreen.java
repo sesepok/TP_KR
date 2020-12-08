@@ -165,7 +165,8 @@ class GameScreen extends JPanel implements ActionListener
 		leaveButtonPanel.add(leaveButton);
 		bottomPanel.add(generalInfoPanel);
 		generalInfoPanel.setLayout(new GridBagLayout());
-		generalInfoLabel.setForeground(Color.yellow);;
+		generalInfoLabel.setForeground(Color.yellow);
+		generalInfoLabel.setFont(generalInfoLabel.getFont().deriveFont(24f));
 		generalInfoPanel.add(generalInfoLabel);
 		generalInfoPanel.setOpaque(false);
 		
@@ -195,7 +196,7 @@ class GameScreen extends JPanel implements ActionListener
 		playerActionsPanel.add(bankButtonPanel);
 		
 		selectedInfoPanel.setLayout(new GridBagLayout());
-		selectedInfoLabel.setFont(selectedInfoLabel.getFont().deriveFont(15f));
+		selectedInfoLabel.setFont(selectedInfoLabel.getFont().deriveFont(18f));
 		selectedInfoLabel.setForeground(Color.yellow);
 		selectedInfoPanel.add(selectedInfoLabel);
 		
@@ -292,6 +293,8 @@ class GameScreen extends JPanel implements ActionListener
 		for (int i = 0; i < playerRecords.length; i++)
 		{
 			playerRecords[i] = new PlayerRecord(state.players[i].getName());
+			playerRecords[i].bankLabel.setText("Bank: " + state.players[i].getBank());
+			playerRecords[i].scoreLabel.setText("Score: " + state.players[i].getScore());
 			leftPanel.add(playerRecords[i]);
 		}
 		playerRecords[state.currentPlayer].select();
@@ -304,6 +307,15 @@ class GameScreen extends JPanel implements ActionListener
 		rollButton.setEnabled(state.rollEnabled);
 		bankButton.setEnabled(state.bankEnabled);
 		
+		selectedInfoLabel.setText("SELECTED SCORE: " + Integer.toString(state.selectedScore));
+		
+		if (state.busted)
+			generalInfoLabel.setText("BUSTED!");
+		else if (state.victory)
+			generalInfoLabel.setText(state.players[state.currentPlayer].getName() + " WON!!!");
+		else
+			generalInfoLabel.setText("");
+		
 		/*diceButtons[0].setIcon(oneDieIcon);
 		diceButtons[1].setIcon(twoDieIcon);
 		diceButtons[2].setIcon(threeDieIcon);
@@ -312,6 +324,7 @@ class GameScreen extends JPanel implements ActionListener
 		diceButtons[5].setIcon(sixDieIcon);*/
 		
 		revalidate();
+		repaint();
 	}
 
 }

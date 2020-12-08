@@ -5,7 +5,8 @@ public class Game
 	private Player[] players;
 	private DiceHand hand;
 	private int currentPlayer;
-	
+	private boolean busted = false;
+	private boolean victory = false;
 	private boolean blankHand = true;
 	
 	public Game(String[] names)
@@ -16,7 +17,6 @@ public class Game
 		
 		hand = new DiceHand();
 		currentPlayer = 0;
-		System.out.println(isRollEnabled());
 	}
 	
 	public GameState getGameState()
@@ -30,8 +30,10 @@ public class Game
 		result.currentPlayer = this.currentPlayer;
 		
 		result.rollEnabled = isRollEnabled();
-		System.out.println("getGameState: " + isRollEnabled());
 		result.bankEnabled = isBankEnabled();
+		result.selectedScore = hand.getSelectedScore();
+		result.busted = busted;
+		result.victory = victory;
 		return result;
 	}
 	
@@ -45,10 +47,53 @@ public class Game
 	{
 		assert isRollEnabled();
 		
+		players[currentPlayer].addScore(hand.getSelectedScore());
 		
+		for (int i = 0; i < 6; i++)
+		{
+			
+			if (hand.isSelected(i))
+				hand.lock(i);
+		}
+		
+		boolean allLocked = true;
+		for (int i = 0; i < 6; i++)
+		{
+			if (!hand.isLocked(i)) allLocked = false;
+		}
+		
+		if (allLocked) hand.reset();
 		
 		hand.roll();
 		blankHand = false;
+		
+		if (!Rules.hasAnyCombination(hand.getUnlockedValues()))
+			busted = true;
+	}
+	
+	
+	public void bank()
+	{
+		assert isBankEnabled();
+		
+		players[currentPlayer].addScore(hand.getSelectedScore());
+		players[currentPlayer].bankScore();
+		if (players[currentPlayer].getBank() >= 10000)
+			victory = true;
+		else
+			nextPlayer();
+	}
+	
+	public void nextPlayer()
+	{
+		players[currentPlayer].setScore(0);
+		if (currentPlayer < players.length - 1)
+			currentPlayer++;
+		else
+			currentPlayer = 0;
+		hand.reset();
+		blankHand = true;
+		busted = false;
 	}
 	
 	public void select(int n)
@@ -68,12 +113,12 @@ public class Game
 	
 	public boolean isRollEnabled()
 	{
-		return blankHand || hand.hasSelectedOnlyCombinations();
+		return !victory && (blankHand || hand.hasSelectedOnlyCombinations());
 	}
 	
 	public boolean isBankEnabled()
 	{
-		return players[currentPlayer].getScore() >= 300;
+		return !victory && !busted && players[currentPlayer].getScore() + hand.getSelectedScore() >= 300;
 	}
 	
 	
