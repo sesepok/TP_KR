@@ -23,6 +23,7 @@ public class GUI extends JFrame implements ActionListener
 	
 	private MainMenu mainMenu = new MainMenu(this);
 	private GameScreen gameScreen = new GameScreen(this);
+	private LobbyScreen lobbyScreen;
 	
 	private Main main;
 	
@@ -45,12 +46,24 @@ public class GUI extends JFrame implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
+
+		
 		switch (((JButton)e.getSource()).getName())
 		{
 		case MainMenu.LOCAL_GAME:
-			PlayerListDialog dialog = new PlayerListDialog(this);
-			dialog.setLocationRelativeTo(this);
-			dialog.setVisible(true);
+			PlayerListDialog playerListDialog = new PlayerListDialog(this);
+			playerListDialog.setLocationRelativeTo(this);
+			playerListDialog.setVisible(true);
+			break;
+		case MainMenu.HOST_GAME:
+			HostGameDialog hostGameDialog = new HostGameDialog(this);
+			hostGameDialog.setLocationRelativeTo(this);
+			hostGameDialog.setVisible(true);
+			break;
+		case MainMenu.JOIN_GAME:
+			JoinGameDialog joinGameDialog = new JoinGameDialog(this);
+			joinGameDialog.setLocationRelativeTo(this);
+			joinGameDialog.setVisible(true);
 			break;
 		case MainMenu.QUIT:
 			main.dispatchUserAction(new QuitUserAction());
@@ -66,6 +79,15 @@ public class GUI extends JFrame implements ActionListener
 			
 		case GameScreen.BANK:
 			main.dispatchUserAction(new BankUserAction());
+			break;
+		
+		case LobbyScreen.LEAVE:
+			
+			main.dispatchUserAction(new LeaveUserAction());
+			break;
+			
+		case LobbyScreen.START:
+			break;
 		}
 		
 	}
@@ -99,6 +121,16 @@ public class GUI extends JFrame implements ActionListener
 		main.dispatchUserAction(new DieUserAction(n));
 	}
 	
+	public void confirmHostGame(String playerName, int port)
+	{
+		main.dispatchUserAction(new HostGameUserAction(playerName, port));
+	}
+	
+	public void confirmJoinGame(String playerName, String IP, int port)
+	{
+		main.dispatchUserAction(new JoinGameUserAction(playerName, IP, port));
+	}
+	
 	//=================== Interface for main ==================================
 	
 	//PROTOTYPE
@@ -115,6 +147,13 @@ public class GUI extends JFrame implements ActionListener
 	public void setGameState(GameState state)
 	{
 		gameScreen.setGameState(state);
+	}
+	
+	public void createLobbyScreen(String name, boolean host)
+	{
+		lobbyScreen = new LobbyScreen(this, host);
+		changeScreenTo(lobbyScreen);
+		lobbyScreen.addPlayerName(name, 0);
 	}
 	
 	

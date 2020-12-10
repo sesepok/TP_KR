@@ -5,6 +5,8 @@ import farkle.game.GameState;
 import farkle.gui.GUI;
 import farkle.main.userAction.CreateLocalGameUserAction;
 import farkle.main.userAction.DieUserAction;
+import farkle.main.userAction.HostGameUserAction;
+import farkle.main.userAction.JoinGameUserAction;
 import farkle.main.userAction.RollUserAction;
 import farkle.main.userAction.UserAction;
 
@@ -13,12 +15,28 @@ public class Main
 	private GUI gui;
 	private Game game;
 	
+	private enum AppState
+	{
+		MAIN_MENU,
+		LOCAL_GAME,
+		HOSTED_LOBBY,
+		HOSTED_GAME,
+		JOINED_LOBBY,
+		JOINED_GAME
+	}
+	
+	private AppState currentAppState;
+	
 	public static void main(String[] args)
 	{
 		Main main = new Main();
 		GUI gui = new GUI(main);
 		main.assignGUI(gui);
-		
+	}
+	
+	public Main()
+	{
+		currentAppState = AppState.MAIN_MENU;
 	}
 	
 	public void assignGUI(GUI gui)
@@ -35,25 +53,27 @@ public class Main
 			game = new Game(((CreateLocalGameUserAction)action).names);
 			gui.createLocalGameScreen(((CreateLocalGameUserAction)action).names);
 			gui.setGameState(game.getGameState());
-			//System.out.println("CREATED");
+			currentAppState = AppState.LOCAL_GAME;
 			break;
 		
 		case HOST_GAME:
+			dispatchHostGameUserAction((HostGameUserAction)action);
 			break;
 			
 		case JOIN_GAME:
+			dispatchJoinGameUserAction((JoinGameUserAction)action);
 			break;
 			
 		case LEAVE_GAME:
 			gui.mainMenu();
+			
+			currentAppState = AppState.MAIN_MENU;
 			break;
 		case DIE:
-			//System.out.println("DIE");
 			dispatchDieUserAction((DieUserAction)action);
 			break;	
 			
 		case ROLL:
-			//System.out.println("ROLL");
 			dispatchRollUserAction((RollUserAction)action);
 			break;
 			
@@ -126,5 +146,17 @@ public class Main
 		{
 			continueAfterSleeping(2000);
 		}
+	}
+	
+	private void dispatchHostGameUserAction(HostGameUserAction action)
+	{
+		gui.createLobbyScreen(action.playerName, true);
+		currentAppState = AppState.HOSTED_LOBBY;
+	}
+	
+	private void dispatchJoinGameUserAction(JoinGameUserAction action)
+	{
+		gui.createLobbyScreen(action.playerName, false);
+		currentAppState = AppState.JOINED_LOBBY;
 	}
 }
