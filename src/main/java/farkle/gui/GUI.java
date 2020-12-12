@@ -104,6 +104,7 @@ public class GUI extends JFrame implements ActionListener
 	
 	private void changeScreenTo(JPanel newScreen)
 	{
+		if (current == newScreen) return;
 		setContentPane(newScreen);
 		current = newScreen;
 		revalidate();
@@ -153,7 +154,15 @@ public class GUI extends JFrame implements ActionListener
 	{
 		lobbyScreen = new LobbyScreen(this, host);
 		changeScreenTo(lobbyScreen);
-		lobbyScreen.addPlayerName(name, 0);
+		//lobbyScreen.addPlayerName(name, 0);
+		String[] names = {name};
+		lobbyScreen.setPlayerNames(names);
+	}
+	
+	public void setLobbyPlayerNames(String[] names)
+	{
+		assert current == lobbyScreen;
+		lobbyScreen.setPlayerNames(names);
 	}
 	
 	

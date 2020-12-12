@@ -78,8 +78,28 @@ public class LobbyScreen  extends JPanel
 		revalidate();
 	}
 	
+	public void clearPlayerNames()
+	{
+		for (int i = 0; i < 6; i++)
+		{
+			playerNameLabels[i] = null;
+		}
+	}
 	
-	public void addPlayerName(String name, int index)
+	public void setPlayerNames(String[] names)
+	{
+		assert names.length <= 6;
+		
+		clearPlayerNames();
+		for (int i = 0; i < names.length; i++)
+		{
+			playerNameLabels[i] = new JLabel(names[i]);
+			playerNameLabels[i].setFont(playerNameLabels[i].getFont().deriveFont(28f));
+		}
+		update();
+	}
+	
+	/*public void addPlayerName(String name, int index)
 	{
 		playerNameLabels[index] = new JLabel(name);
 		playerNameLabels[index].setFont(playerNameLabels[index].getFont().deriveFont(28f));
@@ -90,5 +110,5 @@ public class LobbyScreen  extends JPanel
 	{
 		playerNameLabels[index] = null;
 		update();
-	}
+	}*/
 }

@@ -1,5 +1,8 @@
 package farkle.main;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 import farkle.game.Game;
 import farkle.game.GameState;
 import farkle.gui.GUI;
@@ -7,6 +10,7 @@ import farkle.main.userAction.CreateLocalGameUserAction;
 import farkle.main.userAction.DieUserAction;
 import farkle.main.userAction.HostGameUserAction;
 import farkle.main.userAction.JoinGameUserAction;
+import farkle.main.userAction.NetworkUserAction;
 import farkle.main.userAction.RollUserAction;
 import farkle.main.userAction.UserAction;
 
@@ -14,6 +18,11 @@ public class Main
 {
 	private GUI gui;
 	private Game game;
+	private Server server;
+	private Client client;
+	
+	private ArrayList<String> lobbyPlayerList = new ArrayList<String>();
+	private boolean lobby = true;
 	
 	private enum AppState
 	{
@@ -50,10 +59,11 @@ public class Main
 		switch(action.type)
 		{
 		case LOCAL_GAME:
+			clearState();
 			game = new Game(((CreateLocalGameUserAction)action).names);
 			gui.createLocalGameScreen(((CreateLocalGameUserAction)action).names);
 			gui.setGameState(game.getGameState());
-			currentAppState = AppState.LOCAL_GAME;
+			changeState(AppState.LOCAL_GAME);
 			break;
 		
 		case HOST_GAME:
@@ -65,9 +75,10 @@ public class Main
 			break;
 			
 		case LEAVE_GAME:
+			clearState();
 			gui.mainMenu();
+			changeState(AppState.MAIN_MENU);
 			
-			currentAppState = AppState.MAIN_MENU;
 			break;
 		case DIE:
 			dispatchDieUserAction((DieUserAction)action);
@@ -150,13 +161,105 @@ public class Main
 	
 	private void dispatchHostGameUserAction(HostGameUserAction action)
 	{
-		gui.createLobbyScreen(action.playerName, true);
-		currentAppState = AppState.HOSTED_LOBBY;
+		try 
+		{
+			clearState();
+			gui.createLobbyScreen(action.playerName, true);
+			lobbyPlayerList.clear();
+			lobbyPlayerList.add(action.playerName);
+			server = new Server(this, action.port);
+			server.start();
+			changeState(AppState.HOSTED_LOBBY);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	private void dispatchJoinGameUserAction(JoinGameUserAction action)
 	{
-		gui.createLobbyScreen(action.playerName, false);
-		currentAppState = AppState.JOINED_LOBBY;
+		try
+		{
+			clearState();
+			gui.createLobbyScreen(action.playerName, false);
+			client = new Client(this, action.playerName, action.IP, action.port);
+			client.connect();
+			changeState(AppState.JOINED_LOBBY);
+		} catch (IOException e) {
+			System.out.println("Could not connect");
+			clearState();
+			gui.mainMenu();
+			changeState(AppState.MAIN_MENU);
+		}
+		
 	}
+	
+	private void clearState()
+	{
+		if (server != null)
+		{
+			try {
+				server.close();
+				server = null;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		if (client != null)
+		{
+			try {
+				client.close();
+				client = null;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void changeState(AppState newState)
+	{
+		currentAppState = newState;
+	}
+	
+	//FOR SERVER ONLY!!!
+	public void dispatchNetworkUserAction(NetworkUserAction networkAction)
+	{
+		UserAction action = networkAction.action;
+		switch(action.type)
+		{
+		case JOIN_GAME:
+			assert lobby;
+			lobbyPlayerList.add(((JoinGameUserAction)action).playerName);
+			try {
+				server.broadcastPlayerNames(lobbyPlayerList.toArray(new String[0]));
+				gui.setLobbyPlayerNames(lobbyPlayerList.toArray(new String[0]));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			break;
+		case LEAVE_GAME:
+			if (lobby)
+			{
+				lobbyPlayerList.remove(networkAction.sourcePlayerIndex);
+				try {
+					server.broadcastPlayerNames(lobbyPlayerList.toArray(new String[0]));
+					gui.setLobbyPlayerNames(lobbyPlayerList.toArray(new String[0]));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			break;
+		}
+	}
+	
+	// =================== Following are for clients =====================
+	
+	public void setLobbyPlayerNames(String[] names)
+	{
+		gui.setLobbyPlayerNames(names);
+	}
+	
+	
 }
