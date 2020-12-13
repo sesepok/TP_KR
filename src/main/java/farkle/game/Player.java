@@ -11,6 +11,13 @@ public class Player
 		this.name = name;
 	}
 	
+	public Player(String name, int bank, int score)
+	{
+		this(name);
+		this.bank = bank;
+		this.score = score;
+	}
+	
 	public String getName()
 	{
 		return name;
@@ -55,4 +62,14 @@ public class Player
 		return copy;
 	}
 	
+	public String toString()
+	{
+		return getName() + " " + getBank() + " " + getScore();
+	}
+	
+	public static Player fromString(String str)
+	{
+		String[] params = str.split(" ");
+		return new Player(params[0], Integer.parseInt(params[1]), Integer.parseInt(params[2]));
+	}
 }

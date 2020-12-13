@@ -60,6 +60,8 @@ public class LobbyScreen  extends JPanel
 			startButton.setName(START);
 			startButton.addActionListener(parent);
 			rightPanel.add(startButton, BorderLayout.SOUTH);
+			
+			startButton.setEnabled(false);
 		}
 	}
 	
@@ -96,6 +98,7 @@ public class LobbyScreen  extends JPanel
 			playerNameLabels[i] = new JLabel(names[i]);
 			playerNameLabels[i].setFont(playerNameLabels[i].getFont().deriveFont(28f));
 		}
+		startButton.setEnabled(names.length >= 2);
 		update();
 	}
 	

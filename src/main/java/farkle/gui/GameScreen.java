@@ -237,7 +237,6 @@ class GameScreen extends JPanel implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		System.out.println("pressed!" + ((JButton)e.getSource()).getName().charAt(4));
 		parent.diePressed(Integer.parseInt(((JButton)e.getSource()).getName().substring(4)));
 	}
 	
@@ -316,12 +315,6 @@ class GameScreen extends JPanel implements ActionListener
 		else
 			generalInfoLabel.setText("");
 		
-		/*diceButtons[0].setIcon(oneDieIcon);
-		diceButtons[1].setIcon(twoDieIcon);
-		diceButtons[2].setIcon(threeDieIcon);
-		diceButtons[3].setIcon(fourDieIcon);
-		diceButtons[4].setIcon(fiveDieIcon);
-		diceButtons[5].setIcon(sixDieIcon);*/
 		
 		revalidate();
 		repaint();

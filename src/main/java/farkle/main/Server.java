@@ -11,9 +11,13 @@ import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import farkle.game.GameState;
+import farkle.main.userAction.BankUserAction;
+import farkle.main.userAction.DieUserAction;
 import farkle.main.userAction.JoinGameUserAction;
 import farkle.main.userAction.LeaveUserAction;
 import farkle.main.userAction.NetworkUserAction;
+import farkle.main.userAction.RollUserAction;
 
 public class Server
 {
@@ -125,8 +129,8 @@ public class Server
 			try 
 			{
 				String input = dis.readUTF();
-				System.out.println("Client " + playerIndex + " sent:\n" + input);
-				String[] inputWords = input.split(" ");
+				//System.out.println("Client " + playerIndex + " sent:\n" + input);
+				String[] inputWords = input.split(":");
 				if (inputWords[0].equals("HELLO"))
 				{
 					main.dispatchNetworkUserAction(
@@ -142,7 +146,7 @@ public class Server
 					try
 					{
 						input = dis.readUTF();
-						System.out.println("Client " + playerIndex + " sent:\n" + input);
+						processClientMessage(input);
 					}
 					catch (SocketException e)
 					{
@@ -171,9 +175,41 @@ public class Server
 			
 		}
 		
+		public void sendMessage(String message) throws IOException
+		{
+			dos.writeUTF(message);
+		}
+		
 		public void sendPlayerNames(String[] names) throws IOException
 		{
-			dos.writeUTF("LOBBY " + String.join(" ", names));
+			dos.writeUTF("LOBBY:" + String.join(" ", names));
+		}
+		
+		private void processClientMessage(String input)
+		{
+			//System.out.println("Client " + playerIndex + " sent:\n" + input);
+			String[] words = input.split(":");
+			if (words[0].equals("ROLL"))
+			{
+				main.dispatchNetworkUserAction(
+						new NetworkUserAction(
+								new RollUserAction(),
+								playerIndex));
+			}
+			else if (words[0].equals("BANK"))
+			{
+				main.dispatchNetworkUserAction(
+						new NetworkUserAction(
+								new BankUserAction(),
+								playerIndex));
+			}
+			else if (words[0].equals("DIE"))
+			{
+				main.dispatchNetworkUserAction(
+						new NetworkUserAction(
+								new DieUserAction(Integer.parseInt(words[1])),
+								playerIndex));
+			}
 		}
 		
 		public void close() throws IOException
@@ -243,6 +279,30 @@ public class Server
 		for (ClientHandler ch : clientHandlers)
 		{
 			ch.sendPlayerNames(names);
+		}
+	}
+
+	public void broadcastStartGame() throws IOException 
+	{
+		for (ClientHandler ch : clientHandlers)
+		{
+			ch.sendMessage("START");
+		}
+	}
+
+	public void startGame() throws IOException 
+	{
+		gameStarted = true;
+		lobbyFiller.interrupt();
+		serverSocket.close();
+	}
+	
+	public void broadcastGameState(GameState state) throws IOException
+	{
+		for (ClientHandler ch : clientHandlers)
+		{
+			state.myTurn = state.currentPlayer == ch.playerIndex;
+			ch.sendMessage("GAME:" + state.toString());
 		}
 	}
 	

@@ -1,8 +1,11 @@
 package farkle.game;
 
+import java.util.ArrayList;
+
 public class Game 
 {
-	private Player[] players;
+	//private Player[] players;
+	private ArrayList<Player> players;
 	private DiceHand hand;
 	private int currentPlayer;
 	private boolean busted = false;
@@ -11,9 +14,11 @@ public class Game
 	
 	public Game(String[] names)
 	{
-		players = new Player[names.length];
+		//players = new Player[names.length];
+		players = new ArrayList<Player>();
 		for (int i = 0; i < names.length; i++)
-			players[i] = new Player(names[i]);
+			//players[i] = new Player(names[i]);
+			players.add(new Player(names[i]));
 		
 		hand = new DiceHand();
 		currentPlayer = 0;
@@ -22,9 +27,12 @@ public class Game
 	public GameState getGameState()
 	{
 		GameState result = new GameState();
-		result.players = new Player[this.players.length];
-		for (int i = 0; i < this.players.length; i++)
-			result.players[i] = this.players[i].copy();
+		//result.players = new Player[this.players.length];
+		result.players = new Player[this.players.size()];
+		//for (int i = 0; i < this.players.length; i++)
+		for (int i = 0; i < this.players.size(); i++)
+			//result.players[i] = this.players[i].copy();
+			result.players[i] = this.players.get(i).copy();
 		
 		result.hand = this.hand.copy();
 		result.currentPlayer = this.currentPlayer;
@@ -34,6 +42,17 @@ public class Game
 		result.selectedScore = hand.getSelectedScore();
 		result.busted = busted;
 		result.victory = victory;
+		return result;
+	}
+	
+	public GameState getHostGameState()
+	{
+		GameState result = getGameState();
+		if (result.currentPlayer != 0)
+		{
+			result.rollEnabled = false;
+			result.bankEnabled = false;
+		}
 		return result;
 	}
 	
@@ -47,7 +66,8 @@ public class Game
 	{
 		assert isRollEnabled();
 		
-		players[currentPlayer].addScore(hand.getSelectedScore());
+		//players[currentPlayer].addScore(hand.getSelectedScore());
+		players.get(currentPlayer).addScore(hand.getSelectedScore());
 		
 		for (int i = 0; i < 6; i++)
 		{
@@ -76,9 +96,12 @@ public class Game
 	{
 		assert isBankEnabled();
 		
-		players[currentPlayer].addScore(hand.getSelectedScore());
-		players[currentPlayer].bankScore();
-		if (players[currentPlayer].getBank() >= 10000)
+		//players[currentPlayer].addScore(hand.getSelectedScore());
+		players.get(currentPlayer).addScore(hand.getSelectedScore());
+		//players[currentPlayer].bankScore();
+		players.get(currentPlayer).bankScore();
+		//if (players[currentPlayer].getBank() >= 10000)
+		if (players.get(currentPlayer).getBank() >= 10000)
 			victory = true;
 		else
 			nextPlayer();
@@ -86,8 +109,10 @@ public class Game
 	
 	public void nextPlayer()
 	{
-		players[currentPlayer].setScore(0);
-		if (currentPlayer < players.length - 1)
+		//players[currentPlayer].setScore(0);
+		players.get(currentPlayer).setScore(0);
+		//if (currentPlayer < players.length - 1)
+		if (currentPlayer < players.size() - 1)
 			currentPlayer++;
 		else
 			currentPlayer = 0;
@@ -118,7 +143,20 @@ public class Game
 	
 	public boolean isBankEnabled()
 	{
-		return !victory && !busted && players[currentPlayer].getScore() + hand.getSelectedScore() >= 300;
+		//return !victory && !busted && players[currentPlayer].getScore() + hand.getSelectedScore() >= 300;
+		return !victory && !busted && players.get(currentPlayer).getScore() + hand.getSelectedScore() >= 300;
+	}
+	
+	public void removePlayer(int index)
+	{
+		if (index == players.size() - 1)
+			nextPlayer();
+		if (index < currentPlayer)
+			currentPlayer--;
+		players.remove(index);
+		
+		if (players.size() == 1)
+			victory = true;
 	}
 	
 	

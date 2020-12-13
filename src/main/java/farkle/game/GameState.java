@@ -11,6 +11,8 @@ public class GameState
 	public boolean busted;
 	public boolean victory;
 	
+	public boolean myTurn; // For network game, set outside of the class
+	
 	public GameState(String[] names)
 	{
 		players = new Player[names.length];
@@ -24,18 +26,50 @@ public class GameState
 	{
 	}
 	
+	@Override
 	public String toString()
 	{
-		String result = "GameState(\nplayers:\n[\n";
-		for (int i = 0; i < players.length; i++)
-		{
-			result += "\t{name: " + players[i].getName() + ", bank: " + players[i].getBank() +
-					", score: " + players[i].getScore() + "}\n";
-		}
-		result += "],\ncurrentPlayer: " + currentPlayer + ",\nselectedValue: " + selectedScore +
-				",\nrollEnabled: " + rollEnabled + ",\nbankEnabled: " +
-				bankEnabled + ",\nbusted: " + busted + ",\nvictory: " + victory + ")";
-		return result;
+		StringBuilder result = new StringBuilder();
+		
+		result.append(players[0].toString());
+		for (int i = 1; i < players.length; i++)
+			result.append("," + players[i].toString());
+		
+		result.append(".");
+		result.append(hand.toString());
+		result.append(".");
+		result.append(currentPlayer + " " + selectedScore);
+		result.append(".");
+		result.append(rollEnabled + " " + bankEnabled + " " + busted + " " + victory + " " + myTurn); 
+		
+		return result.toString();
 	}
 	
+	
+	public static GameState fromString(String str)
+	{
+		String[] parts = str.split("\\.");
+		GameState result = new GameState();
+		
+		String[] playerStrings = parts[0].split(",");
+		Player[] players = new Player[playerStrings.length];
+		for (int i = 0; i < players.length; i++)
+			players[i] = Player.fromString(playerStrings[i]);
+		
+		result.players = players;
+		result.hand = DiceHand.fromString(parts[1]);
+		
+		String[] ints = parts[2].split(" ");
+		result.currentPlayer = Integer.parseInt(ints[0]);
+		result.selectedScore = Integer.parseInt(ints[1]);
+		
+		String[] bools = parts[3].split(" ");
+		result.rollEnabled = Boolean.parseBoolean(bools[0]);
+		result.bankEnabled = Boolean.parseBoolean(bools[1]);
+		result.busted = Boolean.parseBoolean(bools[2]);
+		result.victory = Boolean.parseBoolean(bools[3]);
+		result.myTurn = Boolean.parseBoolean(bools[4]);
+		
+		return result;
+	}
 }

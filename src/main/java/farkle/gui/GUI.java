@@ -41,6 +41,7 @@ public class GUI extends JFrame implements ActionListener
 		setVisible(true);
 		setResizable(false);
 		setLocationRelativeTo(null);
+		setTitle("FARKLE");
 	}
 
 	@Override
@@ -65,6 +66,11 @@ public class GUI extends JFrame implements ActionListener
 			joinGameDialog.setLocationRelativeTo(this);
 			joinGameDialog.setVisible(true);
 			break;
+		case MainMenu.RULES:
+			RulesDialog rulesDialog = new RulesDialog(this);
+			rulesDialog.setLocationRelativeTo(this);
+			rulesDialog.setVisible(true);
+			break;
 		case MainMenu.QUIT:
 			main.dispatchUserAction(new QuitUserAction());
 			break;
@@ -87,6 +93,7 @@ public class GUI extends JFrame implements ActionListener
 			break;
 			
 		case LobbyScreen.START:
+			main.dispatchUserAction(new ConfirmLobbyUserAction());
 			break;
 		}
 		
@@ -135,7 +142,7 @@ public class GUI extends JFrame implements ActionListener
 	//=================== Interface for main ==================================
 	
 	//PROTOTYPE
-	public void createLocalGameScreen(String[] names)
+	public void createGameScreen(String[] names)
 	{
 		
 		changeScreenTo(gameScreen);
@@ -149,6 +156,7 @@ public class GUI extends JFrame implements ActionListener
 	{
 		gameScreen.setGameState(state);
 	}
+	
 	
 	public void createLobbyScreen(String name, boolean host)
 	{

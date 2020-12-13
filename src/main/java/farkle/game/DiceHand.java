@@ -13,6 +13,11 @@ public class DiceHand
 		}
 	}
 	
+	public DiceHand(Die[] dice)
+	{
+		this.dice = dice;
+	}
+	
 	public void reset()
 	{
 		for (Die die : dice)
@@ -151,6 +156,28 @@ public class DiceHand
 		for (int i = 0; i < 6; i++)
 			copy.dice[i] = this.dice[i].copy();
 		return copy;
+	}
+	
+	public String toString()
+	{
+		StringBuilder result = new StringBuilder();
+		
+		result.append(dice[0].toString());
+		for(int i = 1; i < 6; i++)
+			result.append("," + dice[i].toString());
+		
+		return result.toString();
+	}
+	
+	public static DiceHand fromString(String str)
+	{
+		String[] diceStrings = str.split(",");
+		Die[] dice = new Die[6];
+		for (int i = 0; i < 6; i++)
+		{
+			dice[i] = Die.fromString(diceStrings[i]);
+		}
+		return new DiceHand(dice);
 	}
 
 }

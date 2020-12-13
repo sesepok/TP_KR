@@ -2,10 +2,13 @@ package farkle.main;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.BrokenBarrierException;
 
 import farkle.game.Game;
 import farkle.game.GameState;
 import farkle.gui.GUI;
+import farkle.main.userAction.BankUserAction;
+import farkle.main.userAction.ConfirmLobbyUserAction;
 import farkle.main.userAction.CreateLocalGameUserAction;
 import farkle.main.userAction.DieUserAction;
 import farkle.main.userAction.HostGameUserAction;
@@ -23,6 +26,8 @@ public class Main
 	
 	private ArrayList<String> lobbyPlayerList = new ArrayList<String>();
 	private boolean lobby = true;
+	
+	private boolean myTurn = false; // for clients in network game
 	
 	private enum AppState
 	{
@@ -53,7 +58,7 @@ public class Main
 		this.gui = gui;
 	}
 	
-	
+	// FOR LOCAL USER ONLY
 	public void dispatchUserAction(UserAction action)
 	{
 		switch(action.type)
@@ -61,13 +66,28 @@ public class Main
 		case LOCAL_GAME:
 			clearState();
 			game = new Game(((CreateLocalGameUserAction)action).names);
-			gui.createLocalGameScreen(((CreateLocalGameUserAction)action).names);
-			gui.setGameState(game.getGameState());
+			gui.createGameScreen(((CreateLocalGameUserAction)action).names);
+			showGameState(game.getGameState());
 			changeState(AppState.LOCAL_GAME);
 			break;
 		
 		case HOST_GAME:
 			dispatchHostGameUserAction((HostGameUserAction)action);
+			break;
+			
+		case CONFIRM_LOBBY:
+			game = new Game(lobbyPlayerList.toArray(new String[0]));
+			try {
+				server.broadcastStartGame();
+				server.startGame();
+				gui.createGameScreen(lobbyPlayerList.toArray(new String[0]));
+				showGameState(game.getGameState());
+				server.broadcastGameState(game.getGameState());
+				changeState(AppState.HOSTED_GAME);
+				lobby = false;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			break;
 			
 		case JOIN_GAME:
@@ -89,9 +109,7 @@ public class Main
 			break;
 			
 		case BANK:
-			game.bank();
-			System.out.println(game.getGameState());
-			gui.setGameState(game.getGameState());
+			dispatchBankUserAction((BankUserAction)action);
 			break;
 			
 		case QUIT:
@@ -106,15 +124,38 @@ public class Main
 	
 	private void dispatchDieUserAction(DieUserAction action)
 	{
-		if (game.getGameState().hand.getValue(action.n) == 0 
-				|| game.getGameState().hand.isLocked(action.n)) return;
+		if (currentAppState == AppState.LOCAL_GAME)
+		{
+			clickDie(action.n);
+			showGameState(game.getGameState());
+		}
+		else if (currentAppState == AppState.HOSTED_GAME)
+		{
+			if (game.getGameState().currentPlayer == 0)
+			{
+				clickDie(action.n);
+				showGameState(game.getGameState());
+				broadcastGameState(game.getGameState());
+			}
+		}
+		else if (currentAppState == AppState.JOINED_GAME)
+		{
+			if (myTurn)
+			{
+				client.sendUserActionToServer(new DieUserAction(action.n));
+			}
+		}
+	}
+	
+	private void clickDie(int n)
+	{
+		if (game.getGameState().hand.getValue(n) == 0 
+				|| game.getGameState().hand.isLocked(n)) return;
 		
-		if (!game.getGameState().hand.isSelected(action.n))
-			game.select(action.n);
+		if (!game.getGameState().hand.isSelected(n))
+			game.select(n);
 		else
-			game.deselect(action.n);
-		
-		gui.setGameState(game.getGameState());
+			game.deselect(n);
 	}
 	
 	private void continueAfterSleeping(int sleepTime)
@@ -133,12 +174,16 @@ public class Main
 				{
 					Thread.sleep(sleepTime);
 					game.nextPlayer();
-					gui.setGameState(game.getGameState());
+					showGameState(game.getGameState());
+					if (currentAppState == AppState.HOSTED_GAME)
+						broadcastGameState(game.getGameState());
 				}
 				catch(InterruptedException e)
 				{
 					game.nextPlayer();
-					gui.setGameState(game.getGameState());
+					showGameState(game.getGameState());
+					if (currentAppState == AppState.HOSTED_GAME)
+						broadcastGameState(game.getGameState());
 					this.interrupt();
 				}
 			}
@@ -150,12 +195,36 @@ public class Main
 	
 	private void dispatchRollUserAction(RollUserAction action)
 	{
-		game.roll();
-		System.out.println(game.getGameState());
-		gui.setGameState(game.getGameState());
-		if (game.getGameState().busted)
+		if (currentAppState == AppState.JOINED_GAME)
 		{
-			continueAfterSleeping(2000);
+			client.sendUserActionToServer(new RollUserAction());
+		}
+		else
+		{
+			game.roll();
+			System.out.println(game.getGameState());
+			showGameState(game.getGameState());
+			if (currentAppState == AppState.HOSTED_GAME)
+				broadcastGameState(game.getGameState());
+			if (game.getGameState().busted)
+			{
+				continueAfterSleeping(2000);
+			}
+		}
+	}
+	
+	private void dispatchBankUserAction(BankUserAction action)
+	{
+		if (currentAppState == AppState.JOINED_GAME)
+		{
+			client.sendUserActionToServer(new BankUserAction());
+		}
+		else
+		{
+			game.bank();
+			showGameState(game.getGameState());
+			if (currentAppState == AppState.HOSTED_GAME)
+				broadcastGameState(game.getGameState());
 		}
 	}
 	
@@ -223,6 +292,25 @@ public class Main
 		currentAppState = newState;
 	}
 	
+	private void broadcastGameState(GameState state)
+	{
+		try {
+			server.broadcastGameState(state);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void showGameState(GameState state)
+	{
+		if (currentAppState == AppState.HOSTED_GAME && state.currentPlayer != 0)
+		{
+			state.rollEnabled = false;
+			state.bankEnabled = false;
+		}
+		gui.setGameState(state);
+	}
+	
 	//FOR SERVER ONLY!!!
 	public void dispatchNetworkUserAction(NetworkUserAction networkAction)
 	{
@@ -250,7 +338,45 @@ public class Main
 					e.printStackTrace();
 				}
 			}
+			else
+			{
+				game.removePlayer(networkAction.sourcePlayerIndex);
+				showGameState(game.getGameState());
+				broadcastGameState(game.getGameState());
+			}
 			break;
+		
+		case ROLL:
+			if (game.getGameState().rollEnabled
+					&& game.getGameState().currentPlayer == networkAction.sourcePlayerIndex)
+			{
+				game.roll();
+				showGameState(game.getGameState());
+				broadcastGameState(game.getGameState());
+				if (game.getGameState().busted)
+				{
+					continueAfterSleeping(2000);
+				}
+			}
+			break;
+			
+		case BANK:
+			if (game.getGameState().bankEnabled
+					&& game.getGameState().currentPlayer == networkAction.sourcePlayerIndex)
+			{
+				game.bank();
+				showGameState(game.getGameState());
+				broadcastGameState(game.getGameState());
+			}
+			break;
+			
+		case DIE:
+			if (game.getGameState().currentPlayer == networkAction.sourcePlayerIndex)
+			{
+				clickDie(((DieUserAction)networkAction.action).n);
+				showGameState(game.getGameState());
+				broadcastGameState(game.getGameState());
+			}
 		}
 	}
 	
@@ -261,5 +387,21 @@ public class Main
 		gui.setLobbyPlayerNames(names);
 	}
 	
+	public void serverStartedGame(String[] players)
+	{
+		gui.createGameScreen(players);
+		changeState(AppState.JOINED_GAME);
+	}
+	
+	public void updateGameState(GameState state)
+	{
+		myTurn = state.myTurn;
+		if (!myTurn)
+		{
+			state.rollEnabled = false;
+			state.bankEnabled = false;
+		}
+		showGameState(state);
+	}
 	
 }

@@ -15,6 +15,13 @@ public class Die
 		
 	}
 	
+	public Die(int value, boolean locked, boolean selected)
+	{
+		this.value = value;
+		this.locked = locked;
+		this.selected = selected;
+	}
+	
 	public void roll()
 	{
 		value = Math.abs((random.nextInt() % 6)) + 1;
@@ -71,6 +78,16 @@ public class Die
 		return copy;
 				
 	}
-
+	
+	public String toString()
+	{
+		return Integer.toString(getValue()) + " " + locked + " " + selected;
+	}
+	
+	public static Die fromString(String str)
+	{
+		String[] params = str.split(" ");
+		return new Die(Integer.parseInt(params[0]), Boolean.parseBoolean(params[1]), Boolean.parseBoolean(params[2]));
+	}
 
 }

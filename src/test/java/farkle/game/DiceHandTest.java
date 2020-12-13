@@ -72,9 +72,11 @@ class DiceHandTest {
 		hand.unlock(5);
 		hand.lock(4);
 		hand.lock(2);
+		hand.select(0);
 		hand.lock(2);
+		hand.select(5);
 		
-		boolean[] expectedSelected = {true, false, false, false, true, false};
+		boolean[] expectedSelected = {true, false, false, false, false, true};
 		boolean[] expectedLocked = {false, false, true, false, true, false};
 		assertArrayEquals(expectedSelected, hand.areSelected());
 		assertArrayEquals(expectedLocked, hand.areLocked());

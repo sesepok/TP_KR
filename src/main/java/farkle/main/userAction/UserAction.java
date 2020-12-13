@@ -6,6 +6,7 @@ public class UserAction
 	{
 		LOCAL_GAME,
 		HOST_GAME,
+		CONFIRM_LOBBY,
 		JOIN_GAME,
 		LEAVE_GAME,
 		ROLL,
